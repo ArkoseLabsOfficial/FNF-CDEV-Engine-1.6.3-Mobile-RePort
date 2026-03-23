@@ -714,7 +714,7 @@ class Controls extends FlxActionSet
 		inline bindKeys(Control.PAUSE, [FlxKey.fromString(save.pauseBind[0]), FlxKey.fromString(save.pauseBind[1])]);
 		inline bindKeys(Control.RESET, [FlxKey.fromString(save.resetBind[0])]);
 
-		#if mobile
+		#if android
 		inline bindAndroidKey(Control.BACK, [FlxAndroidKey.BACK]);
 		#end
 	}

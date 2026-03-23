@@ -93,7 +93,7 @@ class OptionsState extends MusicBeatState
 		{
 			if (FlxG.mouse.overlaps(spr, camera))
 			{
-				if (FlxG.mouse.justPressed && !selectedSomethin)
+				if (FlxG.mouse.justPressed)
 				{
 					if (curSelected != spr.ID)
 						changeSelection(spr.ID, true);
