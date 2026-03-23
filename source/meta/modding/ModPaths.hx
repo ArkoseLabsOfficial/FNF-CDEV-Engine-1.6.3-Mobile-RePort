@@ -56,7 +56,7 @@ class ModPaths
 
 	public function addCustomGraphic(key:String):FlxGraphic
 	{
-		var path:String = 'cdev-mods/$mod/images/$key.png';
+		var path:String = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/$mod/images/$key.png';
 		if (FileSystem.exists(path))
 		{
 			var data:Image = Image.fromBytes(File.getBytes(path));
@@ -185,10 +185,10 @@ class ModPaths
 
 	public function currentModFolder(key:String)
 	{
-		var checkFile:String = 'cdev-mods/' + mod + '/' + key;
+		var checkFile:String = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/' + mod + '/' + key;
 		if (FileSystem.exists(checkFile))
 			return checkFile;
-		return 'cdev-mods/$mod/' + key;
+		return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/$mod/' + key;
 	}
 
 	/*

@@ -51,6 +51,7 @@ import meta.states.PlayState;
 import hscript.Expr;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.util.FlxColor;
 import game.cdev.script.CDevScript.CDevModScript;
 
 using StringTools;
@@ -232,6 +233,40 @@ class ScriptSupport
 
 			return;
 		});
+		//mobile stuff
+		#if mobile
+		script.setVariable("addBackButton", function(?xPos:Float = 0, ?yPos:Float = 0, ?color:FlxColor = FlxColor.WHITE, ?confirmCallback:Void->Void = null,
+			?restOpacity:Float = 0.3, ?instant:Bool = false)
+		{
+			playStated.mobileManager.addBackButton(xPos, yPos, color, confirmCallback, restOpacity, instant);
+		});
+		#end
+		#if MOBILE_CONTROLS_ALLOWED
+		script.setVariable("addMobilePad", function(DPad:String, Action:String)
+		{
+			playStated.mobileManager.addMobilePad(DPad, Action);
+		});
+		script.setVariable("removeMobilePad", function()
+		{
+			playStated.mobileManager.removeMobilePad();
+		});
+		script.setVariable("addMobilePadCamera", function(defaultDrawTarget:Bool = false)
+		{
+			playStated.mobileManager.addMobilePadCamera(defaultDrawTarget);
+		});
+		script.setVariable("addHitbox", function(?mode:String)
+		{
+			playStated.mobileManager.addHitbox(mode);
+		});
+		script.setVariable("removeHitbox", function()
+		{
+			playStated.mobileManager.removeHitbox();
+		});
+		script.setVariable("addHitboxCamera", function(defaultDrawTarget:Bool = false)
+		{
+			playStated.mobileManager.addHitboxCamera(defaultDrawTarget);
+		});
+		#end
 		script.mod = mod;
 		//trace('init script finished');
 	}

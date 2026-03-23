@@ -15,7 +15,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
-#if desktop
+#if DISCORD_RPC
 import game.cdev.engineutils.Discord.DiscordClient;
 #end
 
@@ -33,7 +33,7 @@ class OptionsSubState extends MusicBeatSubstate
 	{
 		super();
 		SettingsProperties.ON_PAUSE = true;
-		#if desktop
+		#if DISCORD_RPC
 		if (Main.discordRPC)
 			DiscordClient.changePresence("Setting the game options", null);
 		#end
@@ -72,6 +72,10 @@ class OptionsSubState extends MusicBeatSubstate
 		});
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 200, FlxColor.WHITE, () -> {controls.backButtonClicked = true;});
+		#end
 	}
 
 	override function closeSubState()
@@ -93,6 +97,22 @@ class OptionsSubState extends MusicBeatSubstate
 			changeSelection(1);
 		}
 
+		#if mobile
+		for (item in 0...SettingsProperties.CURRENT_SETTINGS.length)
+		{
+			if (FlxG.mouse.overlaps(grpOptions.members[item], camera))
+			{
+				if (FlxG.mouse.justPressed)
+				{
+					if (curSelected != grpOptions.members[item].ID)
+						changeSelection(grpOptions.members[item].ID, true);
+					else
+						if (allowToPress) onSelected();
+				}
+			}
+		}
+		#end
+
 		if (controls.BACK)
 		{
 			close();
@@ -102,29 +122,33 @@ class OptionsSubState extends MusicBeatSubstate
 			FlxG.switchState(new MainMenuState());*/
 		}
 
-		if (allowToPress)
+		if (controls.ACCEPT && allowToPress)
 		{
-			if (controls.ACCEPT)
-			{
-				for (item in grpOptions.members)
-				{
-					item.alpha = 0;
-				}
-				switch (SettingsProperties.CURRENT_SETTINGS[curSelected].name)
-				{
-					case 'Controls':
-						openSubState(new game.settings.keybinds.RebindControls(true));
-					default:
-						openSubState(new SettingsSubState(SettingsProperties.CURRENT_SETTINGS[curSelected], true));
-				}
-			}
+			onSelected();
 		}
 	}
 
-	function changeSelection(change:Int = 0)
+	function onSelected() {
+		for (item in grpOptions.members)
+		{
+			item.alpha = 0;
+		}
+		switch (SettingsProperties.CURRENT_SETTINGS[curSelected].name)
+		{
+			case 'Controls':
+				openSubState(new game.settings.keybinds.RebindControls(true));
+			default:
+				openSubState(new SettingsSubState(SettingsProperties.CURRENT_SETTINGS[curSelected], true));
+		}
+	}
+
+	function changeSelection(change:Int = 0, forceChange:Bool = false):Void
 	{
 		FlxG.sound.play(game.Paths.sound('scrollMenu'), 0.4);
-		curSelected += change;
+		if (forceChange)
+			curSelected = change;
+		else
+			curSelected += change;
 
 		if (curSelected < 0)
 			curSelected = SettingsProperties.CURRENT_SETTINGS.length - 1;

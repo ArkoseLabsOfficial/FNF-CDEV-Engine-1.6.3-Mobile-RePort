@@ -11,6 +11,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import game.settings.data.SettingsProperties;
 import game.settings.data.SettingsProperties.SettingsCategory;
 import meta.substates.MusicBeatSubstate;
+import flixel.tweens.FlxTween;
 
 class FlxTextTag extends FlxText
 {
@@ -34,6 +35,7 @@ class SettingsSubState extends MusicBeatSubstate
 	{
 		super();
 		if (!loaded)
+		//temp
 		{
 			this.fromPause = fromPause;
 			SettingsProperties.setCurrentClass(this);
@@ -89,6 +91,11 @@ class SettingsSubState extends MusicBeatSubstate
 				}
 			});
 
+			#if mobile
+			mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 200, FlxColor.WHITE, () -> {controls.backButtonClicked = true;});
+			mobileManager.addBackButtonCamera();
+			#end
+
 			if (fromPause)
 				cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 			loaded = true;
@@ -109,6 +116,7 @@ class SettingsSubState extends MusicBeatSubstate
 	}
 
 	var holdTime:Float = 0;
+	var pressedWithMouse:Bool = false;
 
 	override function update(elapsed:Float)
 	{
@@ -122,6 +130,22 @@ class SettingsSubState extends MusicBeatSubstate
 			{
 				changeSelection(1);
 			}
+
+			// Allows tapping on an option directly to select/trigger it
+			for (item in grpOptions.members)
+			{
+				if (FlxG.mouse.overlaps(item, camera))
+				{
+					if (FlxG.mouse.justReleased)
+					{
+						if (curSelected != item.ID)
+							changeSelection(item.ID, true);
+						else
+							pressedWithMouse = true;
+					}
+				}
+			}
+
 			if (controls.BACK)
 			{
 				close();
@@ -153,35 +177,39 @@ class SettingsSubState extends MusicBeatSubstate
 		switch (curSet.type)
 		{
 			case 0: // bool
-				if (controls.ACCEPT)
+				if (controls.ACCEPT || pressedWithMouse || SettingsProperties.checkClick())
 				{
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					CDevConfig.setData(curSet.savedata_field, !CDevConfig.getData(curSet.savedata_field));
 					updateText(theText.ID);
 				}
 			case 1: // int
-				var daValueToAdd:Int = FlxG.keys.pressed.RIGHT ? 1 : -1;
-				if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT)
+				var daValueToAdd:Int = SettingsProperties.getRightPressed() ? 1 : -1;
+				if (SettingsProperties.getLeftPressed() || SettingsProperties.getRightPressed())
 					holdTime += elapsed;
+				else 
+					holdTime = 0;
 
-				if (holdTime <= 0)
+				if (holdTime <= 0 && (SettingsProperties.getLeftPressed() || SettingsProperties.getRightPressed()))
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 
-				if (holdTime > 0.5 || FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT)
+				if (holdTime > 0.5 || SettingsProperties.getLeftJustPressed() || SettingsProperties.getRightJustPressed())
 				{
 					CDevConfig.setData(curSet.savedata_field, CDevConfig.getData(curSet.savedata_field) + daValueToAdd);
 					updateText(theText.ID);
 				}
 				curSet.value_name[0] = CDevConfig.getData(curSet.savedata_field);
 			case 2: // float
-				var daValueToAdd:Float = FlxG.keys.pressed.RIGHT ? 0.1 : -0.1;
-				if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT)
+				var daValueToAdd:Float = SettingsProperties.getRightPressed() ? 0.1 : -0.1;
+				if (SettingsProperties.getLeftPressed() || SettingsProperties.getRightPressed())
 					holdTime += elapsed;
+				else 
+					holdTime = 0;
 
-				if (holdTime <= 0)
+				if (holdTime <= 0 && (SettingsProperties.getLeftPressed() || SettingsProperties.getRightPressed()))
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 
-				if (holdTime > 0.5 || FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT)
+				if (holdTime > 0.5 || SettingsProperties.getLeftJustPressed() || SettingsProperties.getRightJustPressed())
 				{
 					CDevConfig.setData(curSet.savedata_field, CDevConfig.getData(curSet.savedata_field) + daValueToAdd);
 					updateText(theText.ID);
@@ -193,6 +221,7 @@ class SettingsSubState extends MusicBeatSubstate
 			case 4: // self defined
 				updateText(theText.ID);
 		}
+		pressedWithMouse = false;
 	}
 
 	function updateText(set:Int)
@@ -227,10 +256,14 @@ class SettingsSubState extends MusicBeatSubstate
 		title.alpha = 0;
 	}
 
-	public function changeSelection(change:Int = 0)
+	public function changeSelection(change:Int = 0, forceChange:Bool = false)
 	{
 		FlxG.sound.play(game.Paths.sound('scrollMenu'), 0.5);
-		curSelected += change;
+		if (forceChange)
+			curSelected = change;
+		else
+			curSelected += change;
+
 		var bullShit:Int = 0;
 		if (curSelected < 0)
 			curSelected = theCat.settings.length - 1;

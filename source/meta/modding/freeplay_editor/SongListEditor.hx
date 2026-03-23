@@ -4,7 +4,9 @@ import flixel.addons.ui.FlxUIInputText;
 import flixel.text.FlxText;
 import flixel.util.FlxSpriteUtil;
 import meta.substates.MusicBeatSubstate;
+#if DISCORD_RPC
 import game.cdev.engineutils.Discord.DiscordClient;
+#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxButtonPlus;
@@ -41,7 +43,9 @@ class SongListEditor extends MusicBeatState
 	{
 		super();
 
+		#if DISCORD_RPC
 		DiscordClient.changePresence("Editing the song list", null);
+		#end
 
 		FlxG.mouse.visible = true;
 
@@ -60,6 +64,10 @@ class SongListEditor extends MusicBeatState
 
 		updateDatas();
 		createButtons();
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 200, FlxColor.WHITE, () -> {FlxG.switchState(new ModdingScreen());});
+		#end
 
 		initFinish = true;
 	}

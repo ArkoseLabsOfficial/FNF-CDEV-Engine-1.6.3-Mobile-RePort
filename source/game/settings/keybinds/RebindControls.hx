@@ -142,6 +142,23 @@ class RebindControls extends meta.substates.MusicBeatSubstate
 
 		if (isFromPause)
 			cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 300, FlxColor.WHITE, goBack);
+		#end
+	}
+
+	function goBack() {
+		if (camTween != null)
+			camTween.cancel();
+		var camHUD = FlxG.cameras.list[FlxG.cameras.list.length - 1];
+		camHUD.scroll.y = 0;
+		FlxG.sound.play(Paths.sound('cancelMenu'));
+		tweenCam(false);
+		new FlxTimer().start(1, (ea) ->
+		{
+			close();
+		});
 	}
 
 	var overlapped:FlxObject = null;
@@ -230,16 +247,7 @@ class RebindControls extends meta.substates.MusicBeatSubstate
 					}
 					if (FlxG.keys.justPressed.ESCAPE)
 					{
-						if (camTween != null)
-							camTween.cancel();
-						var camHUD = FlxG.cameras.list[FlxG.cameras.list.length - 1];
-						camHUD.scroll.y = 0;
-						FlxG.sound.play(Paths.sound('cancelMenu'));
-						tweenCam(false);
-						new FlxTimer().start(1, (ea) ->
-						{
-							close();
-						});
+						goBack();
 					}
 				case 'input':
 					canNext = false;

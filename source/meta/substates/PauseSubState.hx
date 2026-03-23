@@ -1,6 +1,7 @@
 package meta.substates;
 
 import meta.states.PlayState;
+import meta.states.MusicBeatState;
 import game.Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -21,7 +22,7 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Options', 'Exit to menu'];
+	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Chart Editor', 'Options', 'Exit to menu'];
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -31,15 +32,15 @@ class PauseSubState extends MusicBeatSubstate
 
 		if (PlayState.isStoryMode){
 			if (PlayState.chartingMode){
-				menuItems = ['Resume', 'Restart Song', 'End song', 'Exit Charting Mode', 'Options', 'Exit to menu'];
+				menuItems = ['Resume', 'Restart Song', 'Chart Editor', 'End song', 'Exit Charting Mode', 'Options', 'Exit to menu'];
 			} else{
-				menuItems = ['Resume', 'Restart Song', 'Options', 'Exit to menu'];
+				menuItems = ['Resume', 'Restart Song', 'Chart Editor', 'Options', 'Exit to menu'];
 			}
 		} else{
 			if (PlayState.chartingMode){
-				menuItems = ['Resume', 'Restart Song', 'End song', 'Exit Charting Mode', 'Options', 'Exit to freeplay'];
+				menuItems = ['Resume', 'Restart Song', 'Chart Editor', 'End song', 'Exit Charting Mode', 'Options', 'Exit to freeplay'];
 			} else{
-				menuItems = ['Resume', 'Restart Song', 'Options', 'Exit to freeplay'];
+				menuItems = ['Resume', 'Restart Song', 'Chart Editor', 'Options', 'Exit to freeplay'];
 			}
 		}
 
@@ -100,9 +101,10 @@ class PauseSubState extends MusicBeatSubstate
 
 		for (i in 0...menuItems.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, menuItems[i], true, false);
+			var songText:Alphabet = new Alphabet(0, (70 * i) #if mobile - 130 #else + 30 #end, menuItems[i], true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
+			songText.ID = i;
 			grpMenuShit.add(songText);
 		}
 
@@ -111,6 +113,7 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
+	var acceptedWithMouse:Bool = false;
 	override function update(elapsed:Float)
 	{
 		if (pauseMusic.volume < 0.5)
@@ -127,8 +130,25 @@ class PauseSubState extends MusicBeatSubstate
 		if (downP)
 			changeSelection(1);
 
-		if (accepted)
+		#if mobile
+		for (item in 0...menuItems.length)
 		{
+			if (FlxG.mouse.overlaps(grpMenuShit.members[item], camera))
+			{
+				if (FlxG.mouse.justPressed)
+				{
+					if (curSelected != grpMenuShit.members[item].ID)
+						changeSelection(grpMenuShit.members[item].ID, true);
+					else
+						acceptedWithMouse = true;
+				}
+			}
+		}
+		#end
+
+		if (accepted || acceptedWithMouse)
+		{
+			acceptedWithMouse = false;
 			var daSelected:String = menuItems[curSelected];
 
 			switch (daSelected)
@@ -153,6 +173,8 @@ class PauseSubState extends MusicBeatSubstate
 				case 'Exit Charting Mode':
 					PlayState.chartingMode = false;
 					FlxG.resetState();
+				case 'Chart Editor':
+					PlayState.instance.openChartEditor();
 				case "Exit to menu", "Exit to freeplay":
 					pauseMusic.stop();
 					pauseMusic.destroy();
@@ -188,10 +210,13 @@ class PauseSubState extends MusicBeatSubstate
 		super.destroy();
 	}
 
-	function changeSelection(change:Int = 0):Void
+	function changeSelection(change:Int = 0, forceChange:Bool = false):Void
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-		curSelected += change;
+		if (forceChange)
+			curSelected = change;
+		else
+			curSelected += change;
 
 		if (curSelected < 0)
 			curSelected = menuItems.length - 1;

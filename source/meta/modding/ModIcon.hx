@@ -26,9 +26,9 @@ class ModIcon extends FlxSprite
 		//bruh.
 		var name:String = 'icon';
         
-        if (FileSystem.exists('cdev-mods/$mod/icon.png')){
+        if (FileSystem.exists(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/$mod/icon.png')){
             iconExist = true;
-            name = 'cdev-mods/$mod/icon.png';
+            name = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/$mod/icon.png';
         } else{
             name = 'noIconMod';
         }

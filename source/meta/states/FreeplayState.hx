@@ -20,7 +20,7 @@ import flixel.util.FlxTimer;
 import sys.FileSystem;
 #end
 import flixel.FlxBasic.FlxType;
-#if desktop
+#if DISCORD_RPC
 import game.cdev.engineutils.Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -127,9 +127,9 @@ class FreeplayState extends MusicBeatState
 
 			var list:Array<String> = [];
 
-			if (FileSystem.exists(Sys.getCwd() + 'cdev-mods/' + Paths.curModDir[directory] + '/songList.txt'))
+			if (FileSystem.exists(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/' + Paths.curModDir[directory] + '/songList.txt'))
 			{
-				list = File.getContent('cdev-mods/' + Paths.curModDir[directory] + '/songList.txt').trim().split('\n');
+				list = File.getContent(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/' + Paths.curModDir[directory] + '/songList.txt').trim().split('\n');
 			}
 			for (i in 0...list.length)
 				list[i] = list[i].trim();
@@ -199,13 +199,11 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		#if desktop
 		for (i in 0...customSongList.length)
 		{
 			var bruh:Array<String> = customSongList[i].split(':');
 			songs.push(new SongMetadata(bruh[0], 1, bruh[1], songModListIdk[i]));
 		}
-		#end
 
 		// modName, isClickable, currentValue, min, max.
 		// the min and max value are used if isClickable is true.
@@ -359,6 +357,10 @@ class FreeplayState extends MusicBeatState
 
 		FlxG.mouse.visible = true;
 
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 300, FlxColor.WHITE, () -> {controls.backButtonClicked = true;});
+		#end
+
 		super.create();
 	}
 
@@ -472,7 +474,7 @@ class FreeplayState extends MusicBeatState
 			}
 			else
 			{
-				iconArray[icon.ID].animation.curAnim.curFrame = 0;
+				if (iconArray[icon.ID] != null) iconArray[icon.ID].animation.curAnim.curFrame = 0;
 			}
 		}
 
@@ -1238,7 +1240,7 @@ class FreeplayState extends MusicBeatState
 
 		songInfoUpdate();
 
-		#if desktop
+		#if DISCORD_RPC
 		// Updating Discord Rich Presence
 		if (Main.discordRPC)
 			DiscordClient.changePresence("Freeplay Menu", "Selected: " + songs[curSelected].songName, null);

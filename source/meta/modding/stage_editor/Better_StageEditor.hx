@@ -60,6 +60,7 @@ class Better_StageEditor extends MusicBeatState
 	var character_list:Array<String> = ["dad", "gf", "bf"];
 	var _followCam:FlxObject;
 	var __objectButtons_array:Array<FlxUIButton> = [];
+	var saveButton:FlxUIButton;
 
 	// SELECTED OBJECT //
 	var mouseOffsetPos:FlxPoint = new FlxPoint(0, 0);
@@ -223,13 +224,26 @@ class Better_StageEditor extends MusicBeatState
 		stageLabel.scrollFactor.set();
 		stageDropDown.scrollFactor.set();
 
-		var saveButton = new FlxUIButton(FlxG.width-50,FlxG.height-20,"",function(){
+		saveButton = new FlxUIButton(FlxG.width-50,FlxG.height-20,"",function(){
 			save();
 		});
 		add(saveButton);
 		saveButton.resize(50,20);
 		saveButton.addIcon(new FlxSprite().loadGraphic(Paths.image("ui/file","shared")));
 		saveButton.cameras = [camHUD];
+
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileManager.addMobilePad('STAGE_EDITOR', 'NONE');
+		mobileManager.addMobilePadCamera();
+		#end
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 300, 0, FlxColor.WHITE, () -> {
+			FlxG.camera.bgColor = 0xFF000000;
+			FlxG.switchState(new meta.modding.ModdingScreen());
+		});
+		mobileManager.addBackButtonCamera();
+		#end
 	}
 
 	function __init_stageJson()
@@ -1055,6 +1069,17 @@ class Better_StageEditor extends MusicBeatState
 
 	function checkOverlap(sprite:SpriteStage, mousePos:FlxPoint):Bool
 	{
+		#if mobile
+		for (object in __objectButtons_array)
+		{
+			if (FlxG.mouse.overlaps(object, object.camera) || FlxG.mouse.overlaps(stageDropDown, stageDropDown.camera) ||
+				#if MOBILE_CONTROLS_ALLOWED FlxG.mouse.overlaps(mobileManager.mobilePad, mobileManager.mobilePad.camera) || #end
+				FlxG.mouse.overlaps(saveButton, saveButton.camera) ||
+				FlxG.mouse.overlaps(uiBox, uiBox.camera) || FlxG.mouse.overlaps(uiBox_visible, uiBox_visible.camera))
+				return false;
+		}
+		#end
+
 		var pos = {
 			x: sprite.x - sprite.offset.x,
 			y: sprite.y - sprite.offset.y,
@@ -1071,16 +1096,22 @@ class Better_StageEditor extends MusicBeatState
 			FlxG.keys.pressed.A,
 			FlxG.keys.pressed.W,
 			FlxG.keys.pressed.S,
-			FlxG.keys.pressed.D
+			FlxG.keys.pressed.D,
+			#if MOBILE_CONTROLS_ALLOWED
+			mobileButtonPressed("LEFT"),
+			mobileButtonPressed("UP"),
+			mobileButtonPressed("DOWN"),
+			mobileButtonPressed("RIGHT"),
+			#end
 		];
 
-		if (FlxG.keys.pressed.A)
+		if (FlxG.keys.pressed.A #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed("LEFT") #end)
 			_followCam.x -= camMove;
-		if (FlxG.keys.pressed.S)
+		if (FlxG.keys.pressed.S #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed("DOWN") #end)
 			_followCam.y += camMove;
-		if (FlxG.keys.pressed.D)
+		if (FlxG.keys.pressed.D #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed("RIGHT") #end)
 			_followCam.x += camMove;
-		if (FlxG.keys.pressed.W)
+		if (FlxG.keys.pressed.W #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed("UP") #end)
 			_followCam.y -= camMove;
 
 		if (presses.contains(true))

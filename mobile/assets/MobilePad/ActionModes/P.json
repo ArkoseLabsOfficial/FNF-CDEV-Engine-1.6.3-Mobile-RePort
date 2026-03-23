@@ -1,0 +1,11 @@
+{
+	"buttons": [
+		{
+			"button": "buttonP",
+			"buttonIDs": ["P"],
+			"graphic": "online_pause",
+			"color": "0xE5DE00",
+			"position": [1156, 2]
+		}
+	]
+}

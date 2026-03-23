@@ -19,6 +19,7 @@ import flixel.util.FlxTimer;
 
 class MusicBeatState extends FlxUIState
 {
+	public static var instance:MusicBeatState;
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
@@ -35,6 +36,59 @@ class MusicBeatState extends FlxUIState
 
 	inline function get_controls():game.Controls
 		return game.cdev.engineutils.PlayerSettings.player1.controls;
+
+	public static function getState():MusicBeatState {
+		var curState:Dynamic = FlxG.state;
+		var leState:MusicBeatState = curState;
+		return leState;
+	}
+
+	#if mobile
+	public var mobileManager:MobileControlManager;
+	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.justPressed(buttons);
+		#else
+		return false;
+		#end
+	}
+	public inline function mobileButtonPressed(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.pressed(buttons);
+		#else
+		return false;
+		#end
+	}
+	public inline function mobileButtonReleased(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.justReleased(buttons);
+		#else
+		return false;
+		#end
+	}
+
+	function new() {
+		super();
+		instance = this;
+		mobileManager = new MobileControlManager(this);
+	}
+
+	override function destroy() {
+		if (mobileManager != null) mobileManager.destroy();
+		instance = null;
+		super.destroy();
+	}
+	#else
+	function new() {
+		super();
+		instance = this;
+	}
+
+	override function destroy() {
+		instance = null;
+		super.destroy();
+	}
+	#end
 
 	override function create()
 	{

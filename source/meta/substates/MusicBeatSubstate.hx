@@ -8,9 +8,59 @@ import game.Conductor;
 
 class MusicBeatSubstate extends FlxSubState
 {
+	public static var instance:MusicBeatSubstate;
+	public static var subInstance:MusicBeatSubstate; //idk
+
+	#if mobile
+	public var mobileManager:MobileControlManager;
+	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.justPressed(buttons);
+		#else
+		return false;
+		#end
+	}
+	public inline function mobileButtonPressed(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.pressed(buttons);
+		#else
+		return false;
+		#end
+	}
+	public inline function mobileButtonReleased(buttons:Dynamic):Bool {
+		#if MOBILE_CONTROLS_ALLOWED
+		return mobileManager.mobilePad.justReleased(buttons);
+		#else
+		return false;
+		#end
+	}
+	#end
 	public function new()
 	{
+		#if MOBILE_CONTROLS_ALLOWED
+		if (controls.isInSubSubstate)
+			subInstance = this;
+		else
+		#end
+			instance = this;
+
+		#if mobile
+		#if MOBILE_CONTROLS_ALLOWED
+		controls.isInSubstate = true;
+		#end
+		mobileManager = new MobileControlManager(this);
+		#end
 		super();
+	}
+	override function destroy() {
+		#if mobile
+		if (mobileManager != null) mobileManager.destroy();
+		#end
+		#if MOBILE_CONTROLS_ALLOWED
+		controls.isInSubstate = false;
+		#end
+		instance = null;
+		super.destroy();
 	}
 
 	private var lastBeat:Float = 0;

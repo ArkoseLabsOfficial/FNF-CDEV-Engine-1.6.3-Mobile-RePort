@@ -1,7 +1,6 @@
 package meta.states;
 
 
-#if android import game.system.native.Android; #end
 import game.settings.data.SettingsProperties;
 import meta.modding.week_editor.WeekData;
 import meta.modding.ModPaths;
@@ -10,7 +9,7 @@ import flixel.math.FlxMath;
 import flixel.input.keyboard.FlxKey;
 import lime.system.System;
 import flixel.util.FlxTimer;
-#if desktop
+#if DISCORD_RPC
 import game.cdev.engineutils.Discord.DiscordClient;
 #end
 import openfl.Lib;
@@ -74,7 +73,7 @@ class MainMenuState extends MusicBeatState
 		FlxG.sound.volumeDownKeys = [MINUS,NUMPADMINUS];
 		FlxG.sound.volumeUpKeys = [PLUS,NUMPADPLUS];
 
-		#if desktop
+		#if DISCORD_RPC
 		// Updating Discord Rich Presence
 		if (Main.discordRPC)
 			DiscordClient.changePresence("In the Menus", null);
@@ -208,6 +207,10 @@ class MainMenuState extends MusicBeatState
 			FlxG.camera.zoom = 1.5;
 			FlxTween.tween(FlxG.camera, {zoom: 1}, 1, {ease: FlxEase.cubeOut});
 		}
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 200, FlxColor.WHITE, () -> {controls.backButtonClicked = true;});
+		#end
 	}
 
 	var selectedSomethin:Bool = false;
@@ -242,17 +245,19 @@ class MainMenuState extends MusicBeatState
 				shitHold = 0;
 			}
 
-			#if android
+			#if mobile
 			menuItems.forEach(function(spr:FlxSprite)
 			{
-				Android.touchJustPressed(spr, function (){
-					if (selectedSomethin) return;
-					if (spr.ID != curSelected){
-						changeItem(spr.ID, true);
-					} else{
-						confirmShit();
+				if (FlxG.mouse.overlaps(spr, camera))
+				{
+					if (FlxG.mouse.justPressed && !selectedSomethin)
+					{
+						if (curSelected != spr.ID)
+							changeItem(spr.ID, true);
+						else
+							confirmShit();
 					}
-				});
+				}
 			});
 			#end
 
@@ -322,7 +327,7 @@ class MainMenuState extends MusicBeatState
 	function confirmShit(){
 		switch(optionShit[curSelected]){
 			case 'donate':
-				CDevConfig.utils.openURL('https://ninja-muffin24.itch.io/funkin');
+				CDevConfig.utils.openURL('https://buymeacoffee.com/arkoselabs'); //example thing
 			default:
 				selectedSomethin = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'));

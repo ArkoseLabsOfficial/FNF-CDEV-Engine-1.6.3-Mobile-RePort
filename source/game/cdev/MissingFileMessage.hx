@@ -41,7 +41,7 @@ class MissingFileMessage extends meta.substates.MusicBeatSubstate
 	var canDoShit:Bool = false;
 	override function update(elapsed:Float)
 	{
-		if (FlxG.keys.justPressed.ANY && canDoShit){
+		if ((FlxG.keys.justPressed.ANY #if mobile || FlxG.mouse.justPressed #end) && canDoShit){
             close();
             callback();
         }

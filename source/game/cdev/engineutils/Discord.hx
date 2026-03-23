@@ -1,11 +1,10 @@
 package game.cdev.engineutils;
 
+#if DISCORD_RPC
 import game.cdev.CDevUtils.DiscordJson;
 import game.cdev.CDevConfig;
 import Sys.sleep;
-#if DISCORD_RPC
 import discord_rpc.DiscordRpc;
-#end
 
 using StringTools;
 
@@ -14,7 +13,6 @@ class DiscordClient
 	public static var initialized:Bool = false;
 	public static var RPC_DATA:DiscordJson = null;
 	public static var error:Bool = false;
-	#if DISCORD_RPC
 	public function new()
 	{
 		RPC_DATA = CDevConfig.utils.getRpcJSON();
@@ -99,7 +97,6 @@ class DiscordClient
 
 		// trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
 	}
-	#else
 	//balls
 	public function new(){}
 
@@ -114,5 +111,5 @@ class DiscordClient
 	public static function initialize(){}
 
 	public static function changePresence(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float){}
-	#end
 }
+#end

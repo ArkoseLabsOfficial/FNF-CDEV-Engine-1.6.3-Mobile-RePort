@@ -111,6 +111,10 @@ class SongEditor extends MusicBeatState
 		add(titleText);
 
 		createGUI();
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, 100, FlxColor.WHITE, () -> { if(!exit) {leave();} });
+		#end
 	}
 
 	var input_songName:FlxUIInputText;

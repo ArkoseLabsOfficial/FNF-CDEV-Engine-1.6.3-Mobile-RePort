@@ -204,6 +204,15 @@ class CharacterEditor extends meta.states.MusicBeatState
 		textAnim.cameras = [camHUD];
 		dumbTexts.cameras = [camHUD];
 		super.create();
+
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileManager.addMobilePad('CHARACTER_EDITOR', 'CHARACTER_EDITOR');
+		mobileManager.addMobilePadCamera();
+		#end
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 400, FlxColor.WHITE, () -> {goBack();});
+		mobileManager.addBackButtonCamera();
+		#end
 	}
 
 	function createCameraPointer()
@@ -649,6 +658,15 @@ class CharacterEditor extends meta.states.MusicBeatState
 		uiBox.scrollFactor.set();
 	}
 
+	override public function closeSubState() {
+		super.closeSubState();
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad('CHARACTER_EDITOR', 'CHARACTER_EDITOR');
+		mobileManager.addMobilePadCamera();
+		#end
+	}
+
 	var typingShit2:FlxInputText;
 
 	function loadCharDropDown()
@@ -1039,10 +1057,25 @@ class CharacterEditor extends meta.states.MusicBeatState
 	var multiplier = 0;
 	var camMulti = 0;
 
+	public function goBack() {
+		FlxG.camera.bgColor = 0xFF000000;
+		if (!moddingMode)
+		{
+			if (fromPlayState)
+				FlxG.switchState(new meta.states.PlayState());
+			else
+				FlxG.switchState(new ModdingState());
+		}
+		else
+		{
+			FlxG.switchState(new ModdingScreen());
+		}
+	}
+
 	override function update(elapsed:Float)
 	{
-		multiplier = (FlxG.keys.pressed.SHIFT ? 10 : 1);
-		camMulti = (FlxG.keys.pressed.SHIFT ? 5 : 1);
+		multiplier = ((FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('C') #end) ? 10 : 1);
+		camMulti = ((FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('C') #end) ? 5 : 1);
 		if (char.animation.curAnim != null && textAnim != null)
 			textAnim.text = char.animation.curAnim.name;
 
@@ -1067,28 +1100,28 @@ class CharacterEditor extends meta.states.MusicBeatState
 		if (!flxTypeTextOrSomething.contains(true))
 		{
 			var zoomAdd:Float = 500 * elapsed;
-			if (FlxG.keys.pressed.SHIFT)
+			if (FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('C') #end)
 				zoomAdd *= 4;
 
 			if (FlxG.keys.justPressed.R)
 				FlxG.camera.zoom = 1;
-			if (FlxG.keys.pressed.I)
+			if (FlxG.keys.pressed.I #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('UP2') #end)
 				camFollow.y -= zoomAdd;
-			if (FlxG.keys.pressed.K)
+			if (FlxG.keys.pressed.K #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('DOWN2') #end)
 				camFollow.y += zoomAdd;
 
-			if (FlxG.keys.pressed.J)
+			if (FlxG.keys.pressed.J #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('LEFT2') #end)
 				camFollow.x -= zoomAdd;
-			if (FlxG.keys.pressed.L)
+			if (FlxG.keys.pressed.L #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('RIGHT2') #end)
 				camFollow.x += zoomAdd;
 
-			if (FlxG.keys.pressed.E && FlxG.camera.zoom < 3)
+			if ((FlxG.keys.pressed.E #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('E') #end) && FlxG.camera.zoom < 3)
 			{
 				FlxG.camera.zoom += elapsed * FlxG.camera.zoom;
 				if (FlxG.camera.zoom > 3)
 					FlxG.camera.zoom = 3;
 			}
-			if (FlxG.keys.pressed.Q && FlxG.camera.zoom > 0.1)
+			if ((FlxG.keys.pressed.Q #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('Q') #end) && FlxG.camera.zoom > 0.1)
 			{
 				FlxG.camera.zoom -= elapsed * FlxG.camera.zoom;
 				if (FlxG.camera.zoom < 0.1)
@@ -1120,10 +1153,10 @@ class CharacterEditor extends meta.states.MusicBeatState
 		{
 			if (!flxTypeTextOrSomething.contains(true))
 			{
-				if (FlxG.keys.justPressed.W)
+				if (FlxG.keys.justPressed.W #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('V') #end)
 					curAnim -= 1;
 
-				if (FlxG.keys.justPressed.S)
+				if (FlxG.keys.justPressed.S #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('D') #end)
 					curAnim += 1;
 
 				if (curAnim < 0)
@@ -1132,23 +1165,13 @@ class CharacterEditor extends meta.states.MusicBeatState
 				if (curAnim >= char.animArray.length)
 					curAnim = 0;
 
-				if (FlxG.keys.justPressed.ESCAPE)
+				if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
 				{
-					FlxG.camera.bgColor = 0xFF000000;
-					if (!moddingMode)
-					{
-						if (fromPlayState)
-							FlxG.switchState(new meta.states.PlayState());
-						else
-							FlxG.switchState(new ModdingState());
-					}
-					else
-					{
-						FlxG.switchState(new ModdingScreen());
-					}
+					goBack();
 				}
 
-				if (FlxG.keys.justPressed.S || FlxG.keys.justPressed.W || FlxG.keys.justPressed.SPACE)
+				if (FlxG.keys.justPressed.S || FlxG.keys.justPressed.W || FlxG.keys.justPressed.SPACE #if MOBILE_CONTROLS_ALLOWED ||
+					mobileButtonJustPressed('D') || mobileButtonJustPressed('V') || mobileButtonJustPressed('A') #end)
 				{
 					char.playAnim(char.animArray[curAnim].animPrefix, true);
 					genBoyOffsets();
@@ -1158,7 +1181,13 @@ class CharacterEditor extends meta.states.MusicBeatState
 					FlxG.keys.justPressed.LEFT,
 					FlxG.keys.justPressed.RIGHT,
 					FlxG.keys.justPressed.UP,
-					FlxG.keys.justPressed.DOWN
+					FlxG.keys.justPressed.DOWN,
+					#if MOBILE_CONTROLS_ALLOWED 
+					mobileButtonJustPressed('LEFT'),
+					mobileButtonJustPressed('RIGHT'),
+					mobileButtonJustPressed('UP'),
+					mobileButtonJustPressed('DOWN')
+					#end
 				];
 				for (i in 0...controlArray.length)
 				{
@@ -1166,7 +1195,7 @@ class CharacterEditor extends meta.states.MusicBeatState
 					{
 						var arrayValue = 0;
 
-						if (i > 1)
+						if (i > 1 && i <= 3 || i> 5)
 							arrayValue = 1;
 
 						var negativeMult:Int = 1;
@@ -1284,6 +1313,11 @@ class CharacterEditorSaveDialog extends MusicBeatSubstate
 
 		// cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		exitButt.scrollFactor.set();
+
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileManager.addMobilePad('NONE', 'A');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	var input_charName:FlxUIInputText;
@@ -1326,7 +1360,7 @@ class CharacterEditorSaveDialog extends MusicBeatSubstate
 				input_charName.caretIndex = input_charName.text.length;
 			}
 
-			if (FlxG.keys.justPressed.ENTER)
+			if (FlxG.keys.justPressed.ENTER #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('A') #end)
 			{
 				saveChar();
 				close();
@@ -1386,6 +1420,6 @@ class CharacterEditorSaveDialog extends MusicBeatSubstate
 		var data:String = Json.stringify(daData, "\t");
 
 		if (data.length > 0)
-			File.saveContent('cdev-mods/' + Paths.curModDir[0] + '/data/characters/' + input_charName.text + '.json', data);
+			File.saveContent(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/' + Paths.curModDir[0] + '/data/characters/' + input_charName.text + '.json', data);
 	}
 }

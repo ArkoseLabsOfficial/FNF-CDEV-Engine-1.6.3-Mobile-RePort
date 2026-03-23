@@ -4,7 +4,7 @@ import lime.media.AudioBuffer;
 import haxe.io.Bytes;
 import openfl.geom.Rectangle;
 import flixel.addons.display.FlxSliceSprite;
-import game.cdev.engineutils.Discord.DiscordClient;
+#if DISCORD_RPC import game.cdev.engineutils.Discord.DiscordClient; #end
 import flixel.group.FlxSpriteGroup;
 import game.cdev.log.GameLog;
 import meta.states.*;
@@ -169,7 +169,7 @@ class ChartingState extends MusicBeatState
 		crapFollow = new FlxObject(0, 0, 1, 1);
 		add(crapFollow);
 
-		DiscordClient.changePresence("Chart Editor", null, null, true);
+		#if DISCORD_RPC DiscordClient.changePresence("Chart Editor", null, null, true); #end
 
 		var bgShit:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('aboutMenu'));
 		bgShit.alpha = 0.1;
@@ -185,9 +185,9 @@ class ChartingState extends MusicBeatState
 		waveformSprite = new FlxSprite().makeGraphic(1,1,0xFFFFFFFF);
 		add(waveformSprite);
 
-        /*gridGroups = new FlxSpriteGroup();
-        gridGroups.alpha = 0.7;
-        add(gridGroups);*/
+		/*gridGroups = new FlxSpriteGroup();
+		gridGroups.alpha = 0.7;
+		add(gridGroups);*/
 
 		eventsBackGround = new FlxSprite(gridBG.x, gridBG.y).makeGraphic(Std.int(gridBG.width), Std.int(gridBG.height), FlxColor.BLACK);
 		add(eventsBackGround);
@@ -430,6 +430,11 @@ class ChartingState extends MusicBeatState
 				_song.notes[curSection] = sec; // replacc
 			}
 		}
+
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileManager.addMobilePad('CHART_EDITOR', 'CHART_EDITOR');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	var player1DropDown:UIDropDown;
@@ -1132,7 +1137,7 @@ class ChartingState extends MusicBeatState
 	var justAddedNote:Bool = false;
 	var lastAddition:Int = 0;
 
-	override function update(elapsed:Float)
+		override function update(elapsed:Float)
 	{
 		oldStep = curStep;
 		curStep = recalculateSteps();
@@ -1151,7 +1156,7 @@ class ChartingState extends MusicBeatState
 		super.update(elapsed);
 		updateHeads();
 
-		if (FlxG.keys.justPressed.F1)
+		if (FlxG.keys.justPressed.F1 #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('F') #end)
 		{
 			for (obj in tipTexts)
 			{
@@ -1368,10 +1373,6 @@ class ChartingState extends MusicBeatState
 
 		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
 		{
-			// trace(curStep);
-			// trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
-			// trace('DUMBSHIT');
-
 			if (_song.notes[curSection + 1] == null)
 			{
 				addSection();
@@ -1445,7 +1446,6 @@ class ChartingState extends MusicBeatState
 		FlxG.watch.addQuick('daBeat', curBeat);
 		FlxG.watch.addQuick('daStep', curStep);
 
-		// preventing vocals not playing when the inst restarts
 		if (vocals.playing != FlxG.sound.music.playing)
 		{
 			dontCheck = false;
@@ -1472,18 +1472,28 @@ class ChartingState extends MusicBeatState
 
 		checkChartFile(elapsed);
 
-		if (FlxG.mouse.justPressed && !FlxG.keys.pressed.CONTROL)
+		#if MOBILE_CONTROLS_ALLOWED
+		if (controls.mobileControls)
 		{
-			if (!editingEvents)
+			var touch = FlxG.touches.getFirst();
+			if (touch != null && touch.justPressed && !mobileButtonPressed('H'))
 			{
-				if (FlxG.mouse.overlaps(curRenderedNotes))
+				if (!editingEvents)
 				{
-					curRenderedNotes.forEach(function(note:Note)
+					var touchPos = touch.getWorldPosition();
+					var overlapsNotes = false;
+					curRenderedNotes.forEach(function(note:Note) {
+						if (note.overlapsPoint(touchPos)) overlapsNotes = true;
+					});
+
+					if (overlapsNotes)
 					{
-						if (FlxG.mouse.overlaps(note))
+						curRenderedNotes.forEach(function(note:Note)
 						{
-							if (!selectedNotes.contains(note)){
-								if (FlxG.keys.pressed.CONTROL)
+							if (note.overlapsPoint(touchPos))
+							{
+								if (!selectedNotes.contains(note)){
+									if (mobileButtonPressed('H'))
 									{
 										selectNote(note);
 									}
@@ -1491,79 +1501,188 @@ class ChartingState extends MusicBeatState
 									{
 										deleteNote(note);
 									}
+								}
 							}
-
-						}
-					});
-				}
-				else
-				{
-					if (FlxG.mouse.x > gridBG.x
-						&& FlxG.mouse.x < gridBG.x + gridBG.width
-						&& FlxG.mouse.y > gridBG.y
-						&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
-					{
-						addNote();
+						});
 					}
-				}
-			}
-			else
-			{
-				if (FlxG.mouse.overlaps(curRenderedEvents))
-				{
-					curRenderedEvents.forEach(function(note:ChartEvent)
+					else
 					{
-						if (FlxG.mouse.overlaps(note))
+						if (touchPos.x > gridBG.x
+							&& touchPos.x < gridBG.x + gridBG.width
+							&& touchPos.y > gridBG.y
+							&& touchPos.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
 						{
-							deleteEvent(note);
+							addNote();
 						}
-					});
+					}
 				}
 				else
 				{
-					if (FlxG.mouse.x > gridBG.x
-						&& FlxG.mouse.x < gridBG.x + gridBG.width
-						&& FlxG.mouse.y > gridBG.y
-						&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+					var touchPos = touch.getWorldPosition();
+					var overlapsEvents = false;
+					curRenderedEvents.forEach(function(note:ChartEvent) {
+						if (note.overlapsPoint(touchPos)) overlapsEvents = true;
+					});
+
+					if (overlapsEvents)
 					{
-						FlxG.log.add('added event');
-						addEvent();
+						curRenderedEvents.forEach(function(note:ChartEvent)
+						{
+							if (note.overlapsPoint(touchPos))
+							{
+								deleteEvent(note);
+							}
+						});
+					}
+					else
+					{
+						if (touchPos.x > gridBG.x
+							&& touchPos.x < gridBG.x + gridBG.width
+							&& touchPos.y > gridBG.y
+							&& touchPos.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+						{
+							FlxG.log.add('added event');
+							addEvent();
+						}
 					}
 				}
 			}
-		}
-
-		if (justAddedNote){
-			if (FlxG.mouse.pressed && curSelectedNote != null){
-				var supposedlyY:Float = Math.floor(getYfromStrum((curSelectedNote[0] - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps)));
-				curSelectedNote[2] = Math.max(Conductor.stepCrochet * Math.floor(((FlxG.mouse.y - supposedlyY)) / GRID_SIZE),0);
-				if (curSelectedNote[2] != lastAddition) {
-					updateGrid(true);
-					updateNoteUI();
-					lastAddition = curSelectedNote[2];
+	
+			if (justAddedNote){
+				if (touch != null && touch.pressed && curSelectedNote != null){
+					var touchPos = touch.getWorldPosition();
+					var supposedlyY:Float = Math.floor(getYfromStrum((curSelectedNote[0] - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps)));
+					curSelectedNote[2] = Math.max(Conductor.stepCrochet * Math.floor(((touchPos.y - supposedlyY)) / GRID_SIZE),0);
+					if (curSelectedNote[2] != lastAddition) {
+						updateGrid(true);
+						updateNoteUI();
+						lastAddition = curSelectedNote[2];
+					}
+				} else{
+					justAddedNote = false;
+					lastAddition = 0;
 				}
-			} else{
-				justAddedNote = false;
-				lastAddition = 0;
 			}
-		}
-
-		if (FlxG.mouse.x > gridBG.x
-			&& FlxG.mouse.x < gridBG.x + gridBG.width
-			&& FlxG.mouse.y > gridBG.y
-			&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
-		{
-			dummyArrow.visible = !FlxG.mouse.pressed;
-			dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
-			if (FlxG.keys.pressed.SHIFT)
-				dummyArrow.y = FlxG.mouse.y;
-			else
-				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
+	
+			if (touch != null)
+			{
+				var touchPos = touch.getWorldPosition();
+				if (touchPos.x > gridBG.x
+					&& touchPos.x < gridBG.x + gridBG.width
+					&& touchPos.y > gridBG.y
+					&& touchPos.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+				{
+					dummyArrow.visible = !touch.pressed;
+					dummyArrow.x = Math.floor(touchPos.x / GRID_SIZE) * GRID_SIZE;
+					if (FlxG.keys.pressed.SHIFT || mobileButtonPressed('Y'))
+						dummyArrow.y = touchPos.y;
+					else
+						dummyArrow.y = Math.floor(touchPos.y / GRID_SIZE) * GRID_SIZE;
+				}
+				else
+				{
+					dummyArrow.visible = false;
+				}
+			}
 		}
 		else
 		{
-			dummyArrow.visible = false;
+		#end
+			if (FlxG.mouse.justPressed && !FlxG.keys.pressed.CONTROL)
+			{
+				if (!editingEvents)
+				{
+					if (FlxG.mouse.overlaps(curRenderedNotes))
+					{
+						curRenderedNotes.forEach(function(note:Note)
+						{
+							if (FlxG.mouse.overlaps(note))
+							{
+								if (!selectedNotes.contains(note)){
+									if (FlxG.keys.pressed.CONTROL)
+										{
+											selectNote(note);
+										}
+										else
+										{
+											deleteNote(note);
+										}
+								}
+	
+							}
+						});
+					}
+					else
+					{
+						if (FlxG.mouse.x > gridBG.x
+							&& FlxG.mouse.x < gridBG.x + gridBG.width
+							&& FlxG.mouse.y > gridBG.y
+							&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+						{
+							addNote();
+						}
+					}
+				}
+				else
+				{
+					if (FlxG.mouse.overlaps(curRenderedEvents))
+					{
+						curRenderedEvents.forEach(function(note:ChartEvent)
+						{
+							if (FlxG.mouse.overlaps(note))
+							{
+								deleteEvent(note);
+							}
+						});
+					}
+					else
+					{
+						if (FlxG.mouse.x > gridBG.x
+							&& FlxG.mouse.x < gridBG.x + gridBG.width
+							&& FlxG.mouse.y > gridBG.y
+							&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+						{
+							FlxG.log.add('added event');
+							addEvent();
+						}
+					}
+				}
+			}
+	
+			if (justAddedNote){
+				if (FlxG.mouse.pressed && curSelectedNote != null){
+					var supposedlyY:Float = Math.floor(getYfromStrum((curSelectedNote[0] - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps)));
+					curSelectedNote[2] = Math.max(Conductor.stepCrochet * Math.floor(((FlxG.mouse.y - supposedlyY)) / GRID_SIZE),0);
+					if (curSelectedNote[2] != lastAddition) {
+						updateGrid(true);
+						updateNoteUI();
+						lastAddition = curSelectedNote[2];
+					}
+				} else{
+					justAddedNote = false;
+					lastAddition = 0;
+				}
+			}
+	
+			if (FlxG.mouse.x > gridBG.x
+				&& FlxG.mouse.x < gridBG.x + gridBG.width
+				&& FlxG.mouse.y > gridBG.y
+				&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
+			{
+				dummyArrow.visible = !FlxG.mouse.pressed;
+				dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
+				if (FlxG.keys.pressed.SHIFT)
+					dummyArrow.y = FlxG.mouse.y;
+				else
+					dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
+			}
+			else
+			{
+				dummyArrow.visible = false;
+			}
+		#if MOBILE_CONTROLS_ALLOWED
 		}
+		#end
 
 		var shitshithshsdahskjdh:Array<Bool> = [
 			UI_songTitle.hasFocus,
@@ -1572,7 +1691,7 @@ class ChartingState extends MusicBeatState
 		];
 		if (!shitshithshsdahskjdh.contains(true))
 		{
-			if (FlxG.keys.justPressed.ENTER)
+			if (FlxG.keys.justPressed.ENTER #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('A') #end)
 			{
 				lastSection = curSection;
 
@@ -1582,11 +1701,11 @@ class ChartingState extends MusicBeatState
 				FlxG.switchState(new PlayState());
 			}
 
-			if (FlxG.keys.justPressed.E)
+			if (FlxG.keys.justPressed.E #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('UP2') #end)
 			{
 				changeNoteSustain(Conductor.stepCrochet);
 			}
-			if (FlxG.keys.justPressed.Q)
+			if (FlxG.keys.justPressed.Q #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('DOWN2') #end)
 			{
 				changeNoteSustain(-Conductor.stepCrochet);
 			}
@@ -1609,7 +1728,7 @@ class ChartingState extends MusicBeatState
 					resetEvents();
 			}
 				
-			if (FlxG.keys.justPressed.SPACE)
+			if (FlxG.keys.justPressed.SPACE #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('X') #end)
 			{
 				if (FlxG.sound.music.playing)
 				{
@@ -1657,16 +1776,16 @@ class ChartingState extends MusicBeatState
 				updateTheText();
 			}
 
-			if (!FlxG.keys.pressed.SHIFT)
+			if (!FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('Y') #end)
 			{
-				if (FlxG.keys.pressed.W || FlxG.keys.pressed.S)
+				if (FlxG.keys.pressed.W || FlxG.keys.pressed.S #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('UP') || mobileButtonPressed('DOWN') #end)
 				{
 					FlxG.sound.music.pause();
 					vocals.pause();
 
 					var daTime:Float = 700 * FlxG.elapsed;
 
-					if ((!usingDownscroll ? FlxG.keys.pressed.W : FlxG.keys.pressed.S))
+					if ((!usingDownscroll ? (FlxG.keys.pressed.W #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('UP') #end) : (FlxG.keys.pressed.S #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('DOWN') #end)))
 					{
 						FlxG.sound.music.time -= daTime;
 					}
@@ -1679,14 +1798,14 @@ class ChartingState extends MusicBeatState
 			}
 			else
 			{
-				if (FlxG.keys.justPressed.W || FlxG.keys.justPressed.S)
+				if (FlxG.keys.justPressed.W || FlxG.keys.justPressed.S #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('UP') || mobileButtonJustPressed('DOWN') #end)
 				{
 					FlxG.sound.music.pause();
 					vocals.pause();
 
 					var daTime:Float = Conductor.stepCrochet * 2;
 
-					if (FlxG.keys.justPressed.W)
+					if (FlxG.keys.justPressed.W #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('UP') #end)
 					{
 						FlxG.sound.music.time -= daTime;
 					}
@@ -1721,11 +1840,11 @@ class ChartingState extends MusicBeatState
 		if (!shitshithshsdahskjdh.contains(true))
 		{
 			var shiftThing:Int = 1;
-			if (FlxG.keys.pressed.SHIFT)
+			if (FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('Y') #end)
 				shiftThing = 4;
-			if (FlxG.keys.justPressed.RIGHT || FlxG.keys.justPressed.D)
+			if (FlxG.keys.justPressed.RIGHT || FlxG.keys.justPressed.D #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('RIGHT') #end)
 				changeSection(curSection + shiftThing);
-			if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A)
+			if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A #if MOBILE_CONTROLS_ALLOWED || mobileButtonJustPressed('LEFT') #end)
 				changeSection(curSection - shiftThing);
 
 			updateTheText();
@@ -1736,11 +1855,23 @@ class ChartingState extends MusicBeatState
 		}
 		handleNoteSelections(elapsed);
 	}
+
 	var dragStartPos:FlxPoint = new FlxPoint();
 	var overlavvin:Bool = false;
 	function handleNoteSelections(elapsed:Float){
 		if (editingEvents) return;
 		var mousePos = FlxG.mouse.getWorldPosition();
+		var touchPos:FlxPoint = null;
+		#if MOBILE_CONTROLS_ALLOWED
+		var touch = FlxG.touches.getFirst();
+		if (touch != null) {
+			touchPos = touch.getWorldPosition();
+			if (touch.justPressed && mobileButtonPressed('H')){
+				selectedNotes = [];
+				dragStartPos.set(touchPos.x,touchPos.y);
+			}
+		}
+		#end
 		if (FlxG.mouse.justPressed && FlxG.keys.pressed.CONTROL){
 			selectedNotes = [];
 			dragStartPos.set(mousePos.x,mousePos.y);
@@ -1762,9 +1893,27 @@ class ChartingState extends MusicBeatState
 
 				selectedNotes.push(note);
 			}
+		} 
+		#if MOBILE_CONTROLS_ALLOWED
+		else if (touchPos != null && touch != null && touch.pressed && mobileButtonPressed('H')){
+			selectingSprite.visible = true;
+			selectingSprite.x = Math.min(touchPos.x, dragStartPos.x);
+			selectingSprite.y = Math.min(touchPos.y, dragStartPos.y);
+			if (FlxG.mouse.justMoved || touch.justPressed){
+				selectingSprite.resize(Std.int(Math.abs(touchPos.x - dragStartPos.x)),Std.int(Math.abs(touchPos.y - dragStartPos.y)));
+				selectingSprite.alpha = (FlxG.mouse.justMoved ? 0.5 : 0);		
+			}
 
-			//selectingSprite.offset.set(selectingSprite.width,selectingSprite.height);
-		} else{
+			for (note in curRenderedNotes.members){
+				if (note == null) continue;
+				if (selectedNotes.contains(note)) continue;
+				if (!selectingSprite.overlaps(note)) continue;
+
+				selectedNotes.push(note);
+			}
+		}
+		#end
+		else {
 			selectingSprite.visible = false;
 			selectingSprite.setPosition(0, 0);
 		}
@@ -1774,6 +1923,13 @@ class ChartingState extends MusicBeatState
 			selectingSprite.visible = false;
 			selectingSprite.setPosition(0, 0);
 		}
+		#if MOBILE_CONTROLS_ALLOWED
+		if (touch != null && touch.justReleased && mobileButtonPressed('H')){
+			trace("Selected " + selectedNotes.length + " notes");
+			selectingSprite.visible = false;
+			selectingSprite.setPosition(0, 0);
+		}
+		#end
 
 		if (selectedNotes.length > 0){
 			for (note in curRenderedNotes.members){
@@ -1783,6 +1939,9 @@ class ChartingState extends MusicBeatState
 				note.color = 0xFF3F3F3F;
 
 				overlavvin = ((FlxG.mouse.overlaps(gridBG) || FlxG.mouse.overlaps(note)) && !FlxG.keys.pressed.CONTROL);
+				#if MOBILE_CONTROLS_ALLOWED
+				if (controls.mobileControls) overlavvin = (touchPos != null && (gridBG.overlapsPoint(touchPos) || note.overlapsPoint(touchPos)) && !mobileButtonPressed('H'));
+				#end
 			}
 			if (overlavvin){
 				if (FlxG.mouse.justPressed){
@@ -1834,6 +1993,7 @@ class ChartingState extends MusicBeatState
 			}
 		}
 	}
+
 
 	// CODE ORIGINALLY MADE BY PSYCH ENGINE DEVS... i borrowed it for a bit
 	var waveformPrinted:Bool = true;
@@ -2765,7 +2925,7 @@ class ChartingState extends MusicBeatState
 
 		curSelectedNote = _song.notes[curSection].sectionNotes[_song.notes[curSection].sectionNotes.length - 1];
 
-		if (FlxG.keys.pressed.CONTROL)
+		if (FlxG.keys.pressed.CONTROL #if MOBILE_CONTROLS_ALLOWED || mobileButtonPressed('H') #end)
 			_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus]);
 
 

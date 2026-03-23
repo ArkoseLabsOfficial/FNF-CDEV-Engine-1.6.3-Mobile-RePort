@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin' CDEV Engine" file="CDEV Engine" packageName="com.core5570r.cdevengine" package="com.core5570r.cdevengine" main="Main" version="0.2.8" company="CoreCat" />
+	<app title="FNF': CDEV Engine" file="CDEV Engine" packageName="com.core5570r.cdevengine" package="com.core5570r.cdevengine" main="game.system.FunkinMain" version="0.2.8" company="CoreCat" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -28,7 +28,8 @@
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
 
 	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
+	<window if="mobile" orientation="landscape" fullscreen="true" resizable="false" allow-shaders="true"
+		require-shaders="true" allow-high-dpi="true" />
 
 	<!--Switch-specific-->
 	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
@@ -39,11 +40,23 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
 
+	<!-- For Termux -->
+	<section if="termux">
+		<set name="BUILD_DIR" value="/root/CDevEngine/export/debug" if="debug" />
+		<set name="BUILD_DIR" value="/root/CDevEngine/export/release" unless="debug" />
+		<set name="BUILD_DIR" value="/root/CDevEngine/export/32bit" if="32bits" />
+	</section>
+
 	<classpath name="source"/>
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
-	
+
+	<assets path="mobile/assets" rename="assets/mobile" if="mobile"/>
+
+	<!-- DO NOT ENABLE THIS, IT CAUSES THE LAG -->
+	<define name="REALTIME_MOD_CHECK"/>
+
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
@@ -107,19 +120,19 @@
 	<assets path="assets/week7"    library="week7"    exclude="*.ogg" if="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.mp3" unless="web"/>
 
-	<assets path='example_mods' rename='cdev-mods' embed='false' if="desktop"/>
+	<assets path='example_mods' rename='cdev-mods' embed='false'/>
 	
 	<assets path='crash_handler/cdev-crash_handler.exe' rename='cdev-crash_handler.exe' embed='false' if="windows"/>
-	<assets path='art/readme.txt' rename='do NOT readme.txt'  />
+	<assets path='art/readme.txt' rename='do NOT readme.txt' if="windows"/>
 	
-	<assets path="CHANGELOG.md" rename='changelog.txt'/>
+	<assets path="CHANGELOG.md" rename='changelog.txt' if="windows"/>
 
 	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
 		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
 		NOT USING A DIRECT THING TO THE ASSET!!!
 	-->
-	<assets path="assets/fonts" embed='true'/>
+	<assets path="assets/fonts" embed='false'/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -133,8 +146,7 @@
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="polymod"/>
-	<haxelib name="extension-androidtools" if="android"/>
+	<!-- <haxelib name="polymod"/> -->
 	<!--<haxelib name="linc_luajit" if="ALLOW_LUA"/>-->
 	<haxelib name="discord_rpc" if="desktop"/>
 	<haxelib name="HxWebView" if="desktop"/>
@@ -150,6 +162,28 @@
 	<!-- ______________________________ Haxedefines _____________________________ -->
 	<haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
 	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
+	<haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
+	<haxedef name="HXCPP_CATCH_SEGV" if="CRASH_HANDLER" />
+
+	<!--Disable deprecated warnings-->
+	<haxedef name='no-deprecation-warnings' />
+
+	<!-- Haxe 4.3.0+: Enable pretty syntax errors and stuff. -->
+	<!-- pretty (haxeflixel default), indent, classic (haxe compiler default) -->
+	<haxedef name="message.reporting" value="pretty" />
+	
+	<!-- Do whatever you want I'm tired uninstall and install everytime -->
+	<certificate path="key.keystore" password="psychengine" alias="psychport" alias-password="psychengine" if="android" unless="debug" />
+
+	<haxedef name="SHARE_MOBILE_FILES" if="mobile" />
+	<define name="MOBILE_CONTROLS_ALLOWED" if="mobile" />
+	<haxelib name="mobile-controls" if="mobile" /> <!-- needed for touch things -->
+	<haxedef name="DISABLE_AUDIO_FOCUS" if="android" /> <!-- Disable the fucking audio focus -->
+	<haxedef name="lime_use_old_deltatime" />
+
+	<!-- Category Type for Apple Systems -->
+	<config:ios category_type="public.app-category.music-games" />
+	<config:mac category_type="public.app-category.music-games" />
 
 	<haxedef name="hscriptPos" />
 	<!--Enable the Flixel core recording system-->

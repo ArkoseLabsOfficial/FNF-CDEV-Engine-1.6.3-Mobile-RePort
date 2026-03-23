@@ -1,8 +1,5 @@
 package meta.states;
 
-#if android
-import game.system.native.Android;
-#end
 import game.settings.SettingsSubState;
 import game.settings.data.SettingsProperties;
 import game.cdev.CDevConfig;
@@ -18,22 +15,29 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
-#if desktop
+#if DISCORD_RPC
 import game.cdev.engineutils.Discord.DiscordClient;
+#end
+
+#if sys
+import sys.io.File;
 #end
 
 class OptionsState extends MusicBeatState
 {
 	var currentStatus:String = "main"; // main, category
 	var curSelected:Int = 0;
-	// var options:Array<String> = ['Controls' , 'Gameplay', 'Appearance', 'Misc'];
+	// var options:Array<String> = ['Controls' , 'Gameplay', 'Appearance', 'Misc', 'Mobile'];
 	var grpOptions:FlxTypedGroup<FlxText>;
 	var menuBG:FlxSprite;
+	#if android
+	final lastStorageType:String = CDevConfig.saveData.storageType;
+	#end
 
 	override function create()
 	{
 		SettingsProperties.ON_PAUSE = false;
-		#if desktop
+		#if DISCORD_RPC
 		if (Main.discordRPC)
 			DiscordClient.changePresence("Setting the game options", null);
 		#end
@@ -68,6 +72,10 @@ class OptionsState extends MusicBeatState
 		if (CDevConfig.saveData.engineWM)
 			add(versionShit);
 		super.create();
+
+		#if mobile
+		mobileManager.addBackButton(FlxG.width - 230, FlxG.height - 200, FlxColor.WHITE, () -> {controls.backButtonClicked = true;});
+		#end
 	}
 
 	override function closeSubState()
@@ -80,20 +88,19 @@ class OptionsState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		#if android
+		#if mobile
 		grpOptions.forEach(function(spr:FlxText)
 		{
-			Android.touchJustPressed(spr, function()
+			if (FlxG.mouse.overlaps(spr, camera))
 			{
-				if (spr.ID != curSelected)
+				if (FlxG.mouse.justPressed && !selectedSomethin)
 				{
-					changeSelection(spr.ID, true);
+					if (curSelected != spr.ID)
+						changeSelection(spr.ID, true);
+					else
+						onSelected();
 				}
-				else
-				{
-					onSelected();
-				}
-			});
+			}
 		});
 		#end
 
@@ -157,5 +164,18 @@ class OptionsState extends MusicBeatState
 				item.alpha = 1;
 			}
 		}
+	}
+
+	override public function destroy() {
+		super.destroy();
+
+		#if android
+		if (CDevConfig.saveData.storageType != lastStorageType) {
+			File.saveContent(lime.system.System.applicationStorageDirectory + 'storagetype.txt', CDevConfig.saveData.storageType);
+			FlxG.save.flush();
+			game.Conductor.updateSettings();
+			StorageUtil.initExternalStorageDirectory();
+		}
+		#end
 	}
 }

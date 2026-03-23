@@ -46,6 +46,7 @@ import hscript.Expr;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import game.cdev.engineutils.custom_states.CStateStatics;
+import flixel.util.FlxColor;
 
 using StringTools;
 
@@ -198,6 +199,46 @@ class CustomSubstate extends MusicBeatSubstate
 		script.setVariable("OptionsState", OptionsState);
 		script.setVariable("ModdingState", ModdingState);
 		script.setVariable("AboutState", AboutState);
+
+		//instance access
+		script.setVariable("state", FlxG.state);
+		script.setVariable("substate", FlxG.state.subState);
+
+		//mobile stuff
+		#if mobile
+		script.setVariable("addBackButton", function(?xPos:Float = 0, ?yPos:Float = 0, ?color:FlxColor = FlxColor.WHITE, ?confirmCallback:Void->Void = null,
+			?restOpacity:Float = 0.3, ?instant:Bool = false)
+		{
+			mobileManager.addBackButton(xPos, yPos, color, confirmCallback, restOpacity, instant);
+		});
+		#end
+		#if MOBILE_CONTROLS_ALLOWED
+		script.setVariable("addMobilePad", function(DPad:String, Action:String)
+		{
+			mobileManager.addMobilePad(DPad, Action);
+		});
+		script.setVariable("removeMobilePad", function()
+		{
+			mobileManager.removeMobilePad();
+		});
+		script.setVariable("addMobilePadCamera", function(defaultDrawTarget:Bool = false)
+		{
+			mobileManager.addMobilePadCamera(defaultDrawTarget);
+		});
+		script.setVariable("addHitbox", function(?mode:String)
+		{
+			mobileManager.addHitbox(mode);
+		});
+		script.setVariable("removeHitbox", function()
+		{
+			mobileManager.removeHitbox();
+		});
+		script.setVariable("addHitboxCamera", function(defaultDrawTarget:Bool = false)
+		{
+			mobileManager.addHitboxCamera(defaultDrawTarget);
+		});
+		#end
+
 		lastMod = Paths.currentMod;
 	}
 

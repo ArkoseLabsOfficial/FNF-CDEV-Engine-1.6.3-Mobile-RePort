@@ -13,6 +13,8 @@ import flixel.input.actions.FlxActionSet;
 import flixel.input.gamepad.FlxGamepadButton;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
+import meta.substates.MusicBeatSubstate;
+import meta.states.MusicBeatState;
 
 #if (haxe >= "4.1.0")
 enum abstract Action(String) to String from String
@@ -191,139 +193,139 @@ class Controls extends FlxActionSet
 	public var UP(get, never):Bool;
 
 	inline function get_UP()
-		return _up.check();
+		return _up.check() #if MOBILE_CONTROLS_ALLOWED || hitboxPressed(['NOTE_UP']) #end;
 
 	public var LEFT(get, never):Bool;
 
 	inline function get_LEFT()
-		return _left.check();
+		return _left.check() #if MOBILE_CONTROLS_ALLOWED || hitboxPressed(['NOTE_LEFT']) #end;
 
 	public var RIGHT(get, never):Bool;
 
 	inline function get_RIGHT()
-		return _right.check();
+		return _right.check() #if MOBILE_CONTROLS_ALLOWED || hitboxPressed(['NOTE_RIGHT']) #end;
 
 	public var DOWN(get, never):Bool;
 
 	inline function get_DOWN()
-		return _down.check();
+		return _down.check() #if MOBILE_CONTROLS_ALLOWED || hitboxPressed(['NOTE_DOWN']) #end;
 
 	public var UP_P(get, never):Bool;
 
 	inline function get_UP_P()
-		return _upP.check();
+		return _upP.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustPressed(['NOTE_UP']) #end;
 
 	public var LEFT_P(get, never):Bool;
 
 	inline function get_LEFT_P()
-		return _leftP.check();
+		return _leftP.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustPressed(['NOTE_LEFT']) #end;
 
 	public var RIGHT_P(get, never):Bool;
 
 	inline function get_RIGHT_P()
-		return _rightP.check();
+		return _rightP.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustPressed(['NOTE_RIGHT']) #end;
 
 	public var DOWN_P(get, never):Bool;
 
 	inline function get_DOWN_P()
-		return _downP.check();
+		return _downP.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustPressed(['NOTE_DOWN']) #end;
 
 	public var UP_R(get, never):Bool;
 
 	inline function get_UP_R()
-		return _upR.check();
+		return _upR.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustReleased(['NOTE_UP']) #end;
 
 	public var LEFT_R(get, never):Bool;
 
 	inline function get_LEFT_R()
-		return _leftR.check();
+		return _leftR.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustReleased(['NOTE_LEFT']) #end;
 
 	public var RIGHT_R(get, never):Bool;
 
 	inline function get_RIGHT_R()
-		return _rightR.check();
+		return _rightR.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustReleased(['NOTE_RIGHT']) #end;
 
 	public var DOWN_R(get, never):Bool;
 
 	inline function get_DOWN_R()
-		return _downR.check();
+		return _downR.check() #if MOBILE_CONTROLS_ALLOWED || hitboxJustReleased(['NOTE_DOWN']) #end;
 
 	// UI CONTROLS DANG IT //
 	public var UI_UP(get, never):Bool;
 
 	inline function get_UI_UP()
-		return _ui_up.check();
+		return _ui_up.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadPressed(['UP']) #end;
 
 	public var UI_LEFT(get, never):Bool;
 
 	inline function get_UI_LEFT()
-		return _ui_left.check();
+		return _ui_left.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadPressed(['LEFT']) #end;
 
 	public var UI_RIGHT(get, never):Bool;
 
 	inline function get_UI_RIGHT()
-		return _ui_right.check();
+		return _ui_right.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadPressed(['RIGHT']) #end;
 
 	public var UI_DOWN(get, never):Bool;
 
 	inline function get_UI_DOWN()
-		return _ui_down.check();
+		return _ui_down.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadPressed(['DOWN']) #end;
 
 	public var UI_UP_P(get, never):Bool;
 
 	inline function get_UI_UP_P()
-		return _ui_upP.check();
+		return _ui_upP.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['UP']) #end;
 
 	public var UI_LEFT_P(get, never):Bool;
 
 	inline function get_UI_LEFT_P()
-		return _ui_leftP.check();
+		return _ui_leftP.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['LEFT']) #end;
 
 	public var UI_RIGHT_P(get, never):Bool;
 
 	inline function get_UI_RIGHT_P()
-		return _ui_rightP.check();
+		return _ui_rightP.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['RIGHT']) #end;
 
 	public var UI_DOWN_P(get, never):Bool;
 
 	inline function get_UI_DOWN_P()
-		return _ui_downP.check();
+		return _ui_downP.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['DOWN']) #end;
 
 	public var UI_UP_R(get, never):Bool;
 
 	inline function get_UI_UP_R()
-		return _ui_upR.check();
+		return _ui_upR.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustReleased(['UP']) #end;
 
 	public var UI_LEFT_R(get, never):Bool;
 
 	inline function get_UI_LEFT_R()
-		return _ui_leftR.check();
+		return _ui_leftR.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustReleased(['LEFT']) #end;
 
 	public var UI_RIGHT_R(get, never):Bool;
 
 	inline function get_UI_RIGHT_R()
-		return _ui_rightR.check();
+		return _ui_rightR.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustReleased(['RIGHT']) #end;
 
 	public var UI_DOWN_R(get, never):Bool;
 
 	inline function get_UI_DOWN_R()
-		return _ui_downR.check();
+		return _ui_downR.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustReleased(['DOWN']) #end;
 
 	/////////////////////////////////////
 	public var ACCEPT(get, never):Bool;
 
 	inline function get_ACCEPT()
-		return _accept.check();
+		return _accept.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['A']) #end;
 
 	public var BACK(get, never):Bool;
 
 	inline function get_BACK()
-		return _back.check();
+		return _back.check() #if mobile || checkBackButton() #end #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['B']) #end;
 
 	public var PAUSE(get, never):Bool;
 
 	inline function get_PAUSE()
-		return _pause.check();
+		return _pause.check() #if MOBILE_CONTROLS_ALLOWED || mobilePadJustPressed(['P']) #end;
 
 	public var RESET(get, never):Bool;
 
@@ -893,4 +895,109 @@ class Controls extends FlxActionSet
 	{
 		return input.device == GAMEPAD && (deviceID == FlxInputDeviceID.ALL || input.deviceID == deviceID);
 	}
+
+	#if MOBILE_CONTROLS_ALLOWED
+	public var isInSubstate:Bool = false; // don't worry about this it becomes true and false on it's own in MusicBeatSubstate
+	public var isInSubSubstate:Bool = false; // don't worry about this thing is not important
+	public var requestedInstance(get, default):Dynamic; // is set to MusicBeatState or MusicBeatSubstate when the constructor is called
+	public var requestedHitbox(get, default):FunkinHitbox; // for PlayState and EditorPlayState
+	public var requestedMobilePad(get, default):FunkinMobilePad; //for everything ig
+	public var mobileControls(get, never):Bool; // this is useless for now
+	public var backButtonClicked:Bool = false;
+	//global back button function
+	private function checkBackButton() {
+		if (backButtonClicked) {
+			backButtonClicked = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private function mobilePadPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.pressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function mobilePadJustPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.justPressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function mobilePadJustReleased(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.justReleased(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.pressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxJustPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.justPressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxJustReleased(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.justReleased(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	@:noCompletion
+	private function get_requestedInstance():Dynamic
+	{
+		/* if (isInSubSubstate)
+			return MusicBeatSubstate.subInstance;
+		else */ if (isInSubstate)
+			return MusicBeatSubstate.instance;
+		else
+			return MusicBeatState.getState();
+	}
+
+	@:noCompletion
+	private function get_requestedHitbox():FunkinHitbox
+	{
+		return requestedInstance.mobileManager.hitbox;
+	}
+
+	@:noCompletion
+	private function get_requestedMobilePad():FunkinMobilePad
+	{
+		return requestedInstance.mobileManager.mobilePad;
+	}
+
+	@:noCompletion
+	private function get_mobileControls():Bool
+	{
+		if (game.cdev.CDevConfig.saveData.mobilePadAlpha >= 0.1)
+			return true;
+		else
+			return false;
+	}
+	#end
 }
