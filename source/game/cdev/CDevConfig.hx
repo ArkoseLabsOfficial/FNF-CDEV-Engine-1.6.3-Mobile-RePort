@@ -54,7 +54,103 @@ class CDevConfig
 		accept: "BACK"
 	};
 
-	public static var saveData(default, null):Dynamic;
+	public static var saveData(default, null):Dynamic = {
+		/* Mobile */
+		#if android storageType: "EXTERNAL_DATA", #end
+		#if mobile wideScreen: false, #end
+		#if MOBILE_CONTROLS_ALLOWED
+		mobileExtraKeys: 2,
+		hitboxAlpha: 0.7,
+		mobilePadAlpha: 0.6,
+		hitboxHint: false,
+		hitboxType: 'Gradient',
+		hitboxLocation: 'Bottom',
+		hitboxMode: 'Normal (New)',
+		mobileExtraKeyReturns: ['SHIFT', 'SPACE', 'Q', 'E'],
+		#end
+
+		/* Engine Settings */
+		downscroll: false,
+		songtime: true,
+		flashing: true,
+		camZoom: true,
+		camMovement: true,
+		fullinfo: true,
+		frames: 10,
+		offset: 0,
+		ghost: true,
+		fpscap: 120,
+		botplay: false,
+		noteImpact: true,
+		noteRipples: false,
+		autoPause: false,
+
+		leftBind: "A",
+		downBind: "S",
+		upBind: "W",
+		rightBind: "D",
+
+		// new stuff
+		ui_leftBind: ["A"],
+		ui_downBind: ["S"],
+		ui_upBind: ["W"],
+		ui_rightBind: ["D"],
+
+		resetBind: ["R"],
+		acceptBind: ["SPACE", "ENTER"],
+		backBind: ["BACKSPACE", "ESCAPE"],
+		pauseBind: ["ENTER", "ESCAPE"],
+		// wee
+		
+		performTxt: "fps-mem",
+		smoothAF: true,
+		middlescroll: false,
+		antialiasing: true,
+		fnfNotes: true,
+		hitsound: false,
+		shaders: true,
+
+		rX: -1,
+		rY: -1,
+		rChanged: false,
+
+		cX: -1,
+		cY: -1,
+		cChanged: false,
+
+		#if DISCORD_RPC
+		discordRpc: true,
+		#end
+
+		bgNote: false,
+		bgLane: false,
+		engineWM: true,
+		resetButton: false,
+		healthCounter: false,
+		showDelay: false,
+		multiRateSprite: true,
+
+		randomNote: false,
+		suddenDeath: false,
+		scrollSpeed: 1,
+		healthGainMulti: 1,
+		healthLoseMulti: 1,
+		comboMultipiler: 1,
+
+		testMode: false,
+
+		loadedMods: [],
+		checkNewVersion: true,
+		cameraStartFocus: 0,
+		showTraceLogAt: 0,
+
+		autosaveChart: true,
+		autosaveChart_interval: 30,
+
+		traceLogMessage: true,
+
+		gpuBitmap: false
+	};
 	public static var savePath:String = "";
 	public static var saveFolder:String = "\\CDEV Engine\\";
 	public static var saveFileName:String = "cdev-data.save";
@@ -67,7 +163,7 @@ class CDevConfig
 		#if windows
 		savePath = Sys.getEnv("AppData") + saveFolder;
 		#elseif mobile
-		savePath = Path.normalize(StorageUtil.getExternalStorageDirectory() + saveFolder);
+		savePath = Path.normalize(Sys.getCwd()+saveFolder);
 		#end
 
 		#if mobile
@@ -243,6 +339,7 @@ class CDevConfig
 		if (FileSystem.exists(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/')) //crash fix for mobile devices
 			dirs = FileSystem.readDirectory(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods/');
 		#end
+
 		for (i in 0...saveData.loadedMods.length)
 		{
 			//if ()
@@ -324,7 +421,7 @@ class CDevConfig
 			mobileExtraKeyReturns: ['SHIFT', 'SPACE', 'Q', 'E'],
 			#end
 
-			// Engine Settings
+			/* Engine Settings */
 			downscroll: false,
 			songtime: true,
 			flashing: true,
@@ -373,7 +470,7 @@ class CDevConfig
 			cY: -1,
 			cChanged: false,
 
-			#if desktop
+			#if DISCORD_RPC
 			discordRpc: true,
 			#end
 

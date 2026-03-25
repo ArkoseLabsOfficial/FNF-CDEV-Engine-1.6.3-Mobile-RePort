@@ -42,16 +42,14 @@ class InitState extends MusicBeatState {
 
 		#if mobile
 		//Copy CDev-mods folder automatically, so you don't need to see annoying CopyState screen when you changed storage type
-		var modsPath:String = StorageUtil.getExternalStorageDirectory();
+		var modsPath:String = #if android StorageUtil.getExternalStorageDirectory() #else Sys.getCwd() #end;
 		if (!StorageUtil.areAssetsCopied("cdev-mods/", modsPath))
 			StorageUtil.copyAssetsFromAPK("cdev-mods/", modsPath);
 		#end
 
-		modsFolder = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'cdev-mods';
-		trace("test");
+		modsFolder = #if android StorageUtil.getExternalStorageDirectory() + #elseif mobile Sys.getCwd() + #end 'cdev-mods';
 
-		//my flixel brokes the CopyState ig, so disable CopyState for termux build.
-		#if (mobile && !termux)
+		#if mobile 
 		if (CopyState.checkExistingFiles())
 			FlxG.switchState(new TitleState());
 		else

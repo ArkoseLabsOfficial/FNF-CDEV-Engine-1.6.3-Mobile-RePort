@@ -114,10 +114,16 @@ class Assets
 			var bitmapData = image.src;
 			#else
 			var bitmapData:BitmapData = null;
-			if (pushToGPU && CDevConfig.saveData.gpuBitmap) {
-				bitmapData = new FunkinBitmap(0, 0, true, 0);
-				bitmapData.__fromImage(image);
-			} else {
+			try {
+				if (pushToGPU && CDevConfig.saveData.gpuBitmap) {
+					bitmapData = new FunkinBitmap(0, 0, true, 0);
+					bitmapData.__fromImage(image);
+				} else {
+					bitmapData = BitmapData.fromImage(image);
+				}
+			} catch(e:Dynamic) {
+				trace("gpuBitmap failed, using normal bitmap instead!");
+				//CDevConfig.saveData = CDevConfig.getDefaultSaves();
 				bitmapData = BitmapData.fromImage(image);
 			}
 			#end
@@ -498,10 +504,16 @@ class Assets
 				var bitmapData = image.src;
 				#else
 				var bitmapData:BitmapData = null;
-				if (CDevConfig.saveData.gpuBitmap) {
-					bitmapData = new FunkinBitmap(0, 0, true, 0);
-					bitmapData.__fromImage(image);
-				} else {
+				try {
+					if (CDevConfig.saveData.gpuBitmap) {
+						bitmapData = new FunkinBitmap(0, 0, true, 0);
+						bitmapData.__fromImage(image);
+					} else {
+						bitmapData = BitmapData.fromImage(image);
+					}
+				} catch(e:Dynamic) {
+					trace("gpuBitmap failed, using normal bitmap instead!");
+					//CDevConfig.saveData = CDevConfig.getDefaultSaves();
 					bitmapData = BitmapData.fromImage(image);
 				}
 				#end

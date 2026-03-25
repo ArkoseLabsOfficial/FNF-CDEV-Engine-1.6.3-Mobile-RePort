@@ -89,6 +89,7 @@ class MainMenuState extends MusicBeatState
 
 		game.cdev.CDevConfig.utils.cacheUISounds();
 
+		game.cdev.engineutils.PlayerSettings.init(); //can fix ig.
 		game.cdev.engineutils.PlayerSettings.player1.controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
 		
 		super.create();
