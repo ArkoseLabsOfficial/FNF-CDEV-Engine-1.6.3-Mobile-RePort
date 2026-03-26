@@ -83,10 +83,22 @@ class FunkinMain extends Sprite
 		#end
 		CrashHandler.init();
 
+		#if ios
+		FlxG.stage.window.alert("test 1", 'Notice!');
+		#end
+
+		#if hxvlc
+		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
+		#end
+
 		if (stage != null)
 			init();
 		else
 			addEventListener(Event.ADDED_TO_STAGE, init);
+
+		#if ios
+		FlxG.stage.window.alert("test 2", 'Notice!');
+		#end
 	}
 
 	private function init(?E:Event):Void
@@ -94,11 +106,19 @@ class FunkinMain extends Sprite
 		if (hasEventListener(Event.ADDED_TO_STAGE))
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 
+		#if ios
+		FlxG.stage.window.alert("test 3", 'Notice!');
+		#end
+
 		setupGame();
 	}
 
 	private function setupGame():Void
 	{
+		#if ios
+		FlxG.stage.window.alert("test 4", 'Notice!');
+		#end
+
 		#if (openfl <= "9.2.0")
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
@@ -116,6 +136,10 @@ class FunkinMain extends Sprite
 			game.zoom = 1.0;
 		#end
 
+		#if ios
+		FlxG.stage.window.alert("test 5", 'Notice!');
+		#end
+
 		#if desktop
 		Application.current.onExit.add(function(exitCode)
 		{
@@ -129,6 +153,10 @@ class FunkinMain extends Sprite
 
 		trace("before funkingame");
 		addChild(new FunkinGame(Std.int(game.gameWidth), Std.int(game.gameHeight), #if mobile (mobile.CopyState.checkExistingFiles() ? game.initialState : mobile.CopyState) #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+		
+		#if ios
+		FlxG.stage.window.alert("test 6", 'Notice!');
+		#end
 		
 		#if !mobile
 		cdevLogs = new GameLog();

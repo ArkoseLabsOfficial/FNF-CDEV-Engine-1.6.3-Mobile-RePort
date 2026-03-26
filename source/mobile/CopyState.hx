@@ -152,9 +152,9 @@ class CopyState extends MusicBeatState
 					else
 					{
 						var path:String = '';
-						#if android
-						if (file.startsWith('mods/'))
-							path = #if mobile StorageUtil.getExternalStorageDirectory() + #end file;
+						#if ios
+						if (file.startsWith('cdev-mods/'))
+							path = StorageUtil.getExternalStorageDirectory() + file;
 						else
 						#end
 							path = file;
@@ -179,9 +179,9 @@ class CopyState extends MusicBeatState
 	{
 		var fileName = Path.withoutDirectory(file);
 		var directory = Path.directory(file);
-		#if android
-		if (fileName.startsWith('mods/'))
-			directory = #if mobile StorageUtil.getExternalStorageDirectory() + #end directory;
+		#if ios
+		if (fileName.startsWith('cdev-mods/'))
+			directory = StorageUtil.getExternalStorageDirectory() + directory;
 		#end
 		try
 		{
@@ -231,12 +231,12 @@ class CopyState extends MusicBeatState
 
 		// removes unwanted assets
 		var assets = locatedFiles.filter(folder -> folder.startsWith('assets/'));
-		var mods = locatedFiles.filter(folder -> folder.startsWith('mods/'));
+		var mods = locatedFiles.filter(folder -> folder.startsWith('cdev-mods/'));
 		locatedFiles = assets.concat(mods);
 		locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(file));
-		#if android
+		#if ios
 		for (file in locatedFiles)
-			if (file.startsWith('mods/'))
+			if (file.startsWith('cdev-mods/'))
 				locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(#if mobile StorageUtil.getExternalStorageDirectory() + #end file));
 		#end
 
