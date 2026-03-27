@@ -176,15 +176,10 @@
 	<!-- Do whatever you want I'm tired uninstall and install everytime -->
 	<certificate path="key.keystore" password="psychengine" alias="psychport" alias-password="psychengine" if="android" unless="debug" />
 
-	<haxedef name="SHARE_MOBILE_FILES" if="mobile" />
 	<define name="MOBILE_CONTROLS_ALLOWED" if="mobile" />
 	<haxelib name="mobile-controls" if="mobile" /> <!-- needed for touch things -->
 	<haxedef name="DISABLE_AUDIO_FOCUS" if="android" /> <!-- Disable the fucking audio focus -->
 	<haxedef name="lime_use_old_deltatime" />
-
-	<!-- Category Type for Apple Systems -->
-	<config:ios category_type="public.app-category.music-games" />
-	<config:mac category_type="public.app-category.music-games" />
 
 	<haxedef name="hscriptPos" />
 	<!--Enable the Flixel core recording system-->
