@@ -39,7 +39,7 @@ class InitState extends MusicBeatState {
 
 		trace('called!');
 
-		#if android
+		#if mobile
 		//Copy CDev-mods folder automatically, so you don't need to see annoying CopyState screen when you changed storage type
 		var modsPath:String = StorageUtil.getExternalStorageDirectory();
 		if (!StorageUtil.areAssetsCopied("cdev-mods/", modsPath))
