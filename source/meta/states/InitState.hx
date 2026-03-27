@@ -28,16 +28,8 @@ class InitState extends MusicBeatState {
 	public static var nextState:MusicBeatState = new TitleState();
 
 	override function create() {
-		#if ios
-		FlxG.stage.window.alert("test -1", 'Notice!');
-		#end
-
 		FlxG.save.bind('cdev_engine', 'EngineData'); //init this thing first
 		doInit();
-
-		#if ios
-		FlxG.stage.window.alert("test -2", 'Notice!');
-		#end
 
 		// when crash handler is missing
 		#if desktop
@@ -54,19 +46,11 @@ class InitState extends MusicBeatState {
 			StorageUtil.copyAssetsFromAPK("cdev-mods/", modsPath);
 		#end
 
-		#if ios
-		FlxG.stage.window.alert("test -3", 'Notice!');
-		#end
-
 		#if mobile 
 		if (CopyState.checkExistingFiles())
 			FlxG.switchState(new TitleState());
 		else
 			FlxG.switchState(new CopyState());
-
-		#if ios
-		FlxG.stage.window.alert("test -4", 'Notice!');
-		#end
 		#else
 		FlxG.switchState(new TitleState());
 		#end

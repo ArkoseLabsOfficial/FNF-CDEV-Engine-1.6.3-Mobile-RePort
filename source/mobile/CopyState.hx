@@ -152,7 +152,7 @@ class CopyState extends MusicBeatState
 					else
 					{
 						var path:String = '';
-						#if ios
+						#if MODS_ALLOWED
 						if (file.startsWith('cdev-mods/'))
 							path = StorageUtil.getExternalStorageDirectory() + file;
 						else
@@ -179,7 +179,7 @@ class CopyState extends MusicBeatState
 	{
 		var fileName = Path.withoutDirectory(file);
 		var directory = Path.directory(file);
-		#if ios
+		#if MODS_ALLOWED
 		if (fileName.startsWith('cdev-mods/'))
 			directory = StorageUtil.getExternalStorageDirectory() + directory;
 		#end
@@ -234,7 +234,7 @@ class CopyState extends MusicBeatState
 		var mods = locatedFiles.filter(folder -> folder.startsWith('cdev-mods/'));
 		locatedFiles = assets.concat(mods);
 		locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(file));
-		#if ios
+		#if MODS_ALLOWED
 		for (file in locatedFiles)
 			if (file.startsWith('cdev-mods/'))
 				locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(#if mobile StorageUtil.getExternalStorageDirectory() + #end file));
