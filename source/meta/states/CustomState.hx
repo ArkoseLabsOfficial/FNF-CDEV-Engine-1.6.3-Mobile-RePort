@@ -210,6 +210,8 @@ class CustomState extends MusicBeatState
 		{
 			mobileManager.addBackButton(xPos, yPos, color, confirmCallback, restOpacity, instant);
 		});
+		script.setVariable("isIOS", function() { return #if ios true #else false #end; });
+		script.setVariable("isAndroid", function() { return #if android true #else false #end; });
 		#end
 		#if MOBILE_CONTROLS_ALLOWED
 		script.setVariable("addMobilePad", function(DPad:String, Action:String)

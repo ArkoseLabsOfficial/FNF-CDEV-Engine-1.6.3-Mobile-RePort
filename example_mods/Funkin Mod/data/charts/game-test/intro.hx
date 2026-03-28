@@ -4,7 +4,13 @@ function init() {
 var video:FlxVideo;
 function introStart() {
     video = new FlxVideo();
-    video.play(Paths.video("game_cutscene"));
+    if (isIOS()) {
+        video.load(Paths.video("game_cutscene"));
+        video.play();
+        FlxG.addChildBelowMouse(video);
+    } else {
+        video.play(Paths.video("game_cutscene"));
+    }
     video.onEndReached.add(function()
     {
         video.dispose();
