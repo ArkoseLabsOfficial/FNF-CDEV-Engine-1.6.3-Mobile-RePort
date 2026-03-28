@@ -4,7 +4,7 @@ import lime.system.CFFI;
 import game.cdev.log.GameLog;
 import flixel.addons.display.FlxRuntimeShader;
 #if USE_VIDEOS
-#if ios
+#if hxvlc
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;
 #else
