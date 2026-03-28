@@ -70,8 +70,8 @@
 	<haxelib name="DISCORD_RPC" if="desktop"/>
 
 	<section if="USE_VIDEOS">
-		<haxelib name="hxCodec" unless="ios"/>
-		<haxelib name="hxvlc" if="ios"/>
+		<haxelib name="hxCodec" unless="mobile"/>
+		<haxelib name="hxvlc" if="mobile"/>
 	</section>
 	
 	<section if="PRELOAD_ALL">

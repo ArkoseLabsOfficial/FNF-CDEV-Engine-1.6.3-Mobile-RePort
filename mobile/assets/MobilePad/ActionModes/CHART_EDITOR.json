@@ -1,6 +1,20 @@
 {
   "buttons": [
     {
+      "button": "buttonY",
+      "buttonIDs": ["Y"],
+      "graphic": "y",
+      "position": [1032, 348],
+      "color": "0x4A35B9"
+    },
+    {
+      "button": "buttonX",
+      "buttonIDs": ["X"],
+      "graphic": "x",
+      "position": [1156, 348],
+      "color": "0x99062D"
+    },
+    {
       "button": "buttonV",
       "buttonIDs": ["V"],
       "graphic": "v",
@@ -8,39 +22,32 @@
       "color": "0x49A9B2"
     },
     {
-      "button": "buttonD",
-      "buttonIDs": ["D"],
-      "graphic": "d",
-      "position": [908, 596],
-      "color": "0x0078FF"
-    },
-    {
-      "button": "buttonX",
-      "buttonIDs": ["X"],
-      "graphic": "x",
-      "position": [1030, 348],
-      "color": "0x99062D"
-    },
-    {
-      "button": "buttonY",
-      "buttonIDs": ["Y"],
-      "graphic": "y",
+      "button": "buttonH",
+      "buttonIDs": ["H"],
+      "graphic": "h",
       "position": [1032, 472],
-      "color": "0x4A35B9"
+      "color": "0xF3A505"
+    },
+    {
+      "button": "buttonF",
+      "buttonIDs": ["F"],
+      "graphic": "f",
+      "position": [1156, 472],
+      "color": "0xA87932"
     },
     {
       "button": "buttonC",
       "buttonIDs": ["C"],
       "graphic": "c",
-      "position": [1032, 596],
+      "position": [908, 596],
       "color": "0x44FF00"
     },
     {
-      "button": "buttonH",
-      "buttonIDs": ["H"],
-      "graphic": "h",
-      "position": [1156, 472],
-      "color": "0xF3A505"
+      "button": "buttonB",
+      "buttonIDs": ["B"],
+      "graphic": "b",
+      "position": [1032, 596],
+      "color": "0xFFCB00"
     },
     {
       "button": "buttonA",
@@ -48,34 +55,6 @@
       "graphic": "a",
       "position": [1156, 596],
       "color": "0xFF0000"
-    },
-    {
-      "button": "buttonUp2",
-      "buttonIDs": ["UP2"],
-      "graphic": "up",
-      "position": [264, 465],
-      "color": "0xFF12FA05"
-    },
-    {
-      "button": "buttonDown2",
-      "buttonIDs": ["DOWN2"],
-      "graphic": "down",
-      "position": [264, 585],
-      "color": "0xFF00FFFF"
-    },
-    {
-      "button": "buttonF",
-      "buttonIDs": ["F"],
-      "graphic": "f",
-      "position": [908, 348],
-      "color": "0xB1FC00"
-    },
-    {
-      "button": "buttonG",
-      "buttonIDs": ["G"],
-      "graphic": "g",
-      "position": [1156, 348],
-      "color": "0xFF009D"
     }
   ]
 }

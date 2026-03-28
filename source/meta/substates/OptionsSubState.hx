@@ -52,6 +52,9 @@ class OptionsSubState extends MusicBeatSubstate
 		var lengthy:Float = (FlxG.height / 2) - (((SettingsProperties.CURRENT_SETTINGS.length) * 66) / 2);
 		for (i in 0...SettingsProperties.CURRENT_SETTINGS.length)
 		{
+			if (SettingsProperties.CURRENT_SETTINGS[i].name == "Mobile")
+				continue;
+
 			var text:FlxText = new FlxText(0,0,0, SettingsProperties.CURRENT_SETTINGS[i].name,38);
 			text.setFormat("wendy", 66, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 			text.y = lengthy + ((66) * i) + 5;
